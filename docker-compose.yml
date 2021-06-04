@@ -1,0 +1,65 @@
+services:
+  portainer:
+    image: portainer/portainer-ce
+    container_name: portainer
+    ports:
+      - 8000:8000
+      - ${PORTAINER_PORT_OUTSIDE}:${PORTAINER_PORT_INSIDE}
+    volumes:
+      - portainer_data:/data portainer/portainer-ce
+      - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      estudo_docker_network: 
+        ipv4_address: ${IP_PORTAINER}
+    
+  postgres:
+    image: postgres:13.3-alpine
+    container_name: postgres
+    environment: 
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+    ports: 
+      - ${POSTGRES_PORT_OUTSIDE}:${POSTGRES_PORT_INSIDE}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      estudo_docker_network: 
+        ipv4_address: ${IP_POSTGRES}
+  
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: pgadmin
+    environment: 
+      - PGADMIN_DEFAULT_EMAIL=${PGADMIN_LOGIN_EMAIL}
+      - PGADMIN_DEFAULT_PASSWORD=${PGADMIN_LOGIN_PASSWORD}
+    ports: 
+      - ${PGADMIN_PORT_OUTSIDE}:${PGADMIN_PORT_INSIDE}
+    networks:
+      estudo_docker_network: 
+        ipv4_address: ${IP_PGADMIN}
+  
+  python:
+    container_name: python
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        ARG_VAR: variavel_de_argumento_compose
+    environment: 
+      - ENV_VAR_COMPOSE=variavel_de_ambiente_compose
+
+volumes:
+  portainer_data:
+    name: portainer_data
+  postgres_data:
+    name: postgres_data
+
+networks:
+  estudo_docker_network: 
+    driver: bridge
+    name: estudo_docker_network
+    ipam:
+      driver: default
+      config:
+        - subnet: ${SUBNET}
