@@ -10,5 +10,6 @@ WORKDIR /code
 COPY . /code
 
 RUN pip install numpy
+RUN pip install psycopg2
 
 CMD python cod_python.py

@@ -1,13 +1,22 @@
 import os
-import numpy as np
+import psycopg2
 
-# Acessando variáveis de ambiente de dentro do Container
-print(os.environ.get("ENV_VAR_COMPOSE"))
-print(os.environ.get("ENV_VAR_DOCKERFILE"))
-print(os.environ.get("ENV_ARG"))
+host = os.environ.get("IP_POSTGRES")
+dbname = os.environ.get("POSTGRES_DB")
+user = os.environ.get("POSTGRES_USER")
+password = os.environ.get("POSTGRES_PASSWORD")
+stringConnection = ( "host=%s dbname=%s user=%s password=%s" % (host,dbname,user,password) )
 
-# Utilizando a biblioteca numpy instalada pelo Dockerfile
-a = np.array([2,3,4])
-print(a)
+# Connect to your postgres DB
+conn = psycopg2.connect(stringConnection)
 
-print("It's Works!")
+# Open a cursor to perform database operations
+cur = conn.cursor()
+
+# Execute a query
+cur.execute("SELECT * FROM usuario")
+
+# Retrieve query results
+records = cur.fetchall()
+
+print(records)
